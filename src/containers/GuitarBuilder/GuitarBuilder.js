@@ -88,6 +88,10 @@ class GuitarBuilder extends Component {
     this.setState({purchasing: true});
   };
 
+  purchasedCancelHandler = () => {
+    this.setState({purchasing: false}); // This will hide the modal
+  };
+
   render() {
     const disabledInfo = {
       ...this.state.parts
@@ -97,7 +101,7 @@ class GuitarBuilder extends Component {
     }
     return (
       <Fragment>
-        <Modal show={this.state.purchasing}>
+        <Modal show={this.state.purchasing} modalClosed={this.purchasedCancelHandler}>
           <OrderSummary parts={this.state.parts} />
         </Modal>
         <Guitar parts={this.state.parts} />
