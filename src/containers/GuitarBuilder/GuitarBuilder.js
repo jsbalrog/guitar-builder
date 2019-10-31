@@ -92,6 +92,10 @@ class GuitarBuilder extends Component {
     this.setState({purchasing: false}); // This will hide the modal
   };
 
+  purchaseContinueHandler = () => {
+    alert("Continue");
+  };
+
   render() {
     const disabledInfo = {
       ...this.state.parts
@@ -102,7 +106,12 @@ class GuitarBuilder extends Component {
     return (
       <Fragment>
         <Modal show={this.state.purchasing} modalClosed={this.purchasedCancelHandler}>
-          <OrderSummary parts={this.state.parts} />
+          <OrderSummary
+            purchaseCanceled={this.purchasedCancelHandler}
+            purchaseContinued={this.purchaseContinueHandler}
+            parts={this.state.parts}
+            price={this.state.totalPrice} 
+          />
         </Modal>
         <Guitar parts={this.state.parts} />
         <BuildControls
