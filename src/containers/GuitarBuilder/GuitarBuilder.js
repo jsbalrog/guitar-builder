@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from "react";
 import Guitar from '../../components/Guitar/Guitar';
 import BuildControls from '../../components/Guitar/BuildControls/BuildControls';
+import Modal from '../../components/UI/Modal/Modal';
+import OrderSummary from '../../components/Guitar/OrderSummary/OrderSummary';
 
 const PART_PRICES = {
   lettuce: 0.5,
@@ -21,6 +23,7 @@ class GuitarBuilder extends Component {
       },
       totalPrice: 4,
       purchaseable: false,
+      purchasing: false,
     }
   }
 
@@ -33,7 +36,7 @@ class GuitarBuilder extends Component {
         return sum + el;
       }, 0);
     this.setState({purchaseable: sum > 0})
-  }
+  };
 
   addPartHandler = (type) => {
     // Update the parts
@@ -56,7 +59,7 @@ class GuitarBuilder extends Component {
     this.setState({parts: updatedParts, totalPrice: updatedPrice});
 
     this.updatePurchaseState(updatedParts);
-  }
+  };
 
   removePartHandler = (type) => {
     // Update the parts
@@ -79,7 +82,11 @@ class GuitarBuilder extends Component {
     this.setState({parts: updatedParts, totalPrice: updatedPrice});
 
     this.updatePurchaseState(updatedParts);
-  }
+  };
+
+  purchaseHandler = () => {
+    this.setState({purchasing: true});
+  };
 
   render() {
     const disabledInfo = {
@@ -90,12 +97,16 @@ class GuitarBuilder extends Component {
     }
     return (
       <Fragment>
+        <Modal show={this.state.purchasing}>
+          <OrderSummary parts={this.state.parts} />
+        </Modal>
         <Guitar parts={this.state.parts} />
         <BuildControls
           partAdded={this.addPartHandler}
           partRemoved={this.removePartHandler}
           disabled={disabledInfo}
           purchaseable={this.state.purchaseable}
+          ordered={this.purchaseHandler}
           price={this.state.totalPrice}
         />
       </Fragment>
