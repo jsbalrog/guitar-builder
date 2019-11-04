@@ -3,6 +3,7 @@ import Guitar from '../../components/Guitar/Guitar';
 import BuildControls from '../../components/Guitar/BuildControls/BuildControls';
 import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Guitar/OrderSummary/OrderSummary';
+import axios from '../../axios-orders';
 
 const PART_PRICES = {
   lettuce: 0.5,
@@ -93,7 +94,23 @@ class GuitarBuilder extends Component {
   };
 
   purchaseContinueHandler = () => {
-    alert("Continue");
+    const order = {
+      parts: this.state.parts,
+      price: this.state.totalPrice,
+      customer: {
+        name: 'Max Schwarz',
+        address: {
+          street: 'Teststreet 1',
+          zipCode: 12345,
+          country: 'Germany',
+        },
+        email: 'test@test.com'
+      },
+      deliveryMethod: 'fastest',
+    };
+    axios.post('/orders.json', order)
+      .then(response => console.log(response))
+      .catch(error => console.log(error));
   };
 
   render() {
