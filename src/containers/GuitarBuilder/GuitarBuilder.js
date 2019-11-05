@@ -1,9 +1,11 @@
 import React, { Component, Fragment } from "react";
+import axios from '../../axios-orders';
+
 import Guitar from '../../components/Guitar/Guitar';
 import BuildControls from '../../components/Guitar/BuildControls/BuildControls';
 import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Guitar/OrderSummary/OrderSummary';
-import axios from '../../axios-orders';
+import Spinner from '../../components/UI/Spinner/Spinner';
 
 const PART_PRICES = {
   lettuce: 0.5,
@@ -25,6 +27,7 @@ class GuitarBuilder extends Component {
       totalPrice: 4,
       purchaseable: false,
       purchasing: false,
+      loading: false,
     }
   }
 
@@ -94,6 +97,8 @@ class GuitarBuilder extends Component {
   };
 
   purchaseContinueHandler = () => {
+    this.setState({loading: true});
+
     const order = {
       parts: this.state.parts,
       price: this.state.totalPrice,
@@ -109,8 +114,13 @@ class GuitarBuilder extends Component {
       deliveryMethod: 'fastest',
     };
     axios.post('/orders.json', order)
-      .then(response => console.log(response))
-      .catch(error => console.log(error));
+      .then(response => {
+        console.log(response);
+      })
+      .catch(error => console.log(error))
+      .finally(response => {
+        this.setState({loading: false, purchasing: false});
+      })
   };
 
   render() {
@@ -120,15 +130,20 @@ class GuitarBuilder extends Component {
     for(let key in disabledInfo) {
       disabledInfo[key] = disabledInfo[key] <= 0
     }
+
+    let orderSummary = <OrderSummary
+      purchaseCanceled={this.purchasedCancelHandler}
+      purchaseContinued={this.purchaseContinueHandler}
+      parts={this.state.parts}
+      price={this.state.totalPrice} 
+    />
+    if(this.state.loading) {
+      orderSummary = <Spinner />;
+    }
     return (
       <Fragment>
         <Modal show={this.state.purchasing} modalClosed={this.purchasedCancelHandler}>
-          <OrderSummary
-            purchaseCanceled={this.purchasedCancelHandler}
-            purchaseContinued={this.purchaseContinueHandler}
-            parts={this.state.parts}
-            price={this.state.totalPrice} 
-          />
+          {orderSummary}
         </Modal>
         <Guitar parts={this.state.parts} />
         <BuildControls
