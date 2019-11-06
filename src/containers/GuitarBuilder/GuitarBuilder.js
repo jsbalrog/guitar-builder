@@ -6,6 +6,7 @@ import BuildControls from '../../components/Guitar/BuildControls/BuildControls';
 import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Guitar/OrderSummary/OrderSummary';
 import Spinner from '../../components/UI/Spinner/Spinner';
+import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 
 const PART_PRICES = {
   lettuce: 0.5,
@@ -18,17 +19,23 @@ class GuitarBuilder extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      parts: {
-        lettuce: 0,
-        bacon: 0,
-        cheese: 0,
-        meat: 0
-      },
+      parts: null,
       totalPrice: 4,
       purchaseable: false,
       purchasing: false,
       loading: false,
+      error: false,
     }
+  }
+
+  componentDidMount() {
+    axios.get('/ingredients.json')
+      .then(response => {
+        this.setState({parts: response.data});
+      })
+      .catch(error => {
+        this.setState({error: true});
+      });
   }
 
   updatePurchaseState = (parts) => {
@@ -130,33 +137,41 @@ class GuitarBuilder extends Component {
     for(let key in disabledInfo) {
       disabledInfo[key] = disabledInfo[key] <= 0
     }
-
-    let orderSummary = <OrderSummary
-      purchaseCanceled={this.purchasedCancelHandler}
-      purchaseContinued={this.purchaseContinueHandler}
-      parts={this.state.parts}
-      price={this.state.totalPrice} 
-    />
-    if(this.state.loading) {
-      orderSummary = <Spinner />;
-    }
+    let orderSummary = null;
+    let guitar = this.state.error ? <p>Parts can't be loaded</p> : <Spinner />;
+    if(this.state.parts) {
+      guitar = (
+        <Fragment>
+          <Guitar parts={this.state.parts} />
+          <BuildControls
+            partAdded={this.addPartHandler}
+            partRemoved={this.removePartHandler}
+            disabled={disabledInfo}
+            purchaseable={this.state.purchaseable}
+            ordered={this.purchaseHandler}
+            price={this.state.totalPrice}
+          />
+        </Fragment>);
+      orderSummary = <OrderSummary
+        purchaseCanceled={this.purchasedCancelHandler}
+        purchaseContinued={this.purchaseContinueHandler}
+        parts={this.state.parts}
+        price={this.state.totalPrice} 
+      />
+      }
+      if(this.state.loading) {
+        orderSummary = <Spinner />;
+      }
+  
     return (
       <Fragment>
         <Modal show={this.state.purchasing} modalClosed={this.purchasedCancelHandler}>
           {orderSummary}
         </Modal>
-        <Guitar parts={this.state.parts} />
-        <BuildControls
-          partAdded={this.addPartHandler}
-          partRemoved={this.removePartHandler}
-          disabled={disabledInfo}
-          purchaseable={this.state.purchaseable}
-          ordered={this.purchaseHandler}
-          price={this.state.totalPrice}
-        />
+        {guitar}
       </Fragment>
     );
   }
 }
 
-export default GuitarBuilder;
+export default withErrorHandler(GuitarBuilder, axios);
