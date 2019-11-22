@@ -4,6 +4,7 @@ import classes from './Guitar.module.css';
 import GuitarPart from './GuitarPart/GuitarPart'
 
 const guitar = (props) => {
+  console.log(props);
   /*
    *  Given an object like this: { "foo": 2, "bar": 1, "baz": 3},
    *  return an array ["foo", "foo", "bar", "baz", "baz", "baz"]

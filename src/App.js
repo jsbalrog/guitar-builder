@@ -1,4 +1,5 @@
 import React from "react";
+import { Route } from 'react-router-dom';
 
 import Layout from "./containers/Layout/Layout";
 import GuitarBuilder from "./containers/GuitarBuilder/GuitarBuilder";
@@ -8,8 +9,8 @@ function App() {
   return (
     <div>
       <Layout>
-        <GuitarBuilder />
-        <Checkout />
+        <Route path="/checkout" component={ Checkout } />
+        <Route path="/" exact component={ GuitarBuilder} />
       </Layout>
     </div>
   );

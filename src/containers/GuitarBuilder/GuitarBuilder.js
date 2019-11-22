@@ -29,6 +29,7 @@ class GuitarBuilder extends Component {
   }
 
   componentDidMount() {
+    console.log(this.props);
     axios.get('/ingredients.json')
       .then(response => {
         this.setState({parts: response.data});
@@ -104,30 +105,39 @@ class GuitarBuilder extends Component {
   };
 
   purchaseContinueHandler = () => {
-    this.setState({loading: true});
+    //this.setState({loading: true});
 
-    const order = {
-      parts: this.state.parts,
-      price: this.state.totalPrice,
-      customer: {
-        name: 'Max Schwarz',
-        address: {
-          street: 'Teststreet 1',
-          zipCode: 12345,
-          country: 'Germany',
-        },
-        email: 'test@test.com'
-      },
-      deliveryMethod: 'fastest',
-    };
-    axios.post('/orders.json', order)
-      .then(response => {
-        console.log(response);
-      })
-      .catch(error => console.log(error))
-      .finally(response => {
-        this.setState({loading: false, purchasing: false});
-      })
+    //const order = {
+    //  parts: this.state.parts,
+    //  price: this.state.totalPrice,
+    //  customer: {
+    //    name: 'Max Schwarz',
+    //    address: {
+    //      street: 'Teststreet 1',
+    //      zipCode: 12345,
+    //      country: 'Germany',
+    //    },
+    //    email: 'test@test.com'
+    //  },
+    //  deliveryMethod: 'fastest',
+    //};
+    //axios.post('/orders.json', order)
+    //  .then(response => {
+    //    console.log(response);
+    //  })
+    //  .catch(error => console.log(error))
+    //  .finally(response => {
+    //    this.setState({loading: false, purchasing: false});
+    //  })
+    const queryParams = [];
+    for(let i in this.state.parts) {
+      queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.state.parts[i]));
+    }
+    const queryString = queryParams.join('&');
+    this.props.history.push({
+      pathname: '/checkout',
+      search: '?' + queryString
+    })
   };
 
   render() {
@@ -156,13 +166,13 @@ class GuitarBuilder extends Component {
         purchaseCanceled={this.purchasedCancelHandler}
         purchaseContinued={this.purchaseContinueHandler}
         parts={this.state.parts}
-        price={this.state.totalPrice} 
+        price={this.state.totalPrice}
       />
       }
       if(this.state.loading) {
         orderSummary = <Spinner />;
       }
-  
+
     return (
       <Fragment>
         <Modal show={this.state.purchasing} modalClosed={this.purchasedCancelHandler}>
